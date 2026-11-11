@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Deep Teal Background Circle -->
+  <circle cx="50" cy="50" r="48" fill="#195A5F" stroke="#12B8B0" stroke-width="2"/>
+  
+  <!-- Care Teal Orbit Arc -->
+  <path d="M 20 60 A 35 35 0 1 1 80 40" stroke="#12B8B0" stroke-width="5" stroke-linecap="round" fill="none"/>
+  
+  <!-- Coral Expiry Marker on Arc -->
+  <circle cx="80" cy="40" r="8" fill="#D97F6C" stroke="#F3EDE6" stroke-width="2.5"/>
+  
+  <!-- Central Medicine Capsule in Warm White & Care Teal -->
+  <g transform="rotate(35 50 50)">
+    <rect x="36" y="28" width="28" height="22" rx="11" fill="#F3EDE6"/>
+    <rect x="36" y="50" width="28" height="22" rx="11" fill="#12B8B0"/>
+  </g>
+</svg>

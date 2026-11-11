@@ -1,0 +1,17 @@
+{
+  "name": "Medora Medicine Management",
+  "short_name": "Medora",
+  "description": "Multilingual Smart Medicine Management, Expiry Tracking & Medicine Passport",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0E393D",
+  "theme_color": "#195A5F",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

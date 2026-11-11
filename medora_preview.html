@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medora — Multilingual Smart Medicine Management & Passport (Interactive Demo)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'deep-teal': '#195A5F',
+            'care-teal': '#12B8B0',
+            'coral': '#D97F6C',
+            'warm-white': '#F3EDE6',
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #0E393D; color: #F3EDE6; font-family: 'Plus Jakarta Sans', sans-serif; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    .animate-float { animation: float 4s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-[#0E393D] text-[#F3EDE6] antialiased">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Helper date offset function
+    function offsetDate(days) {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      return d.toISOString().split('T')[0];
+    }
+
+    // Translations Dictionary
+    const TRANSLATIONS = {
+      en: {
+        brand: "Medora",
+        tagline: "Multilingual Smart Medicine Management & Passport",
+        orbit_hero_title: "The Medicine Orbit",
+        orbit_hero_sub: "for household peace of mind.",
+        hero_desc: "Harmonizing package scanning, dynamic expiry timelines, multi-member tracking, and reliable medicine passports across English, தமிழ், and हिन्दी.",
+        scan_btn: "Scan Packaging",
+        cabinet_btn: "Open Cabinet",
+        dashboard_tab: "Dashboard",
+        cabinet_tab: "Cabinet",
+        scan_tab: "Scan",
+        timeline_tab: "Timeline",
+        notif_tab: "Notifications",
+        sched_tab: "Schedules",
+        family_tab: "Family",
+        passport_tab: "Passport",
+        info_tab: "Medicine Info",
+        disposal_tab: "Disposal",
+        settings_tab: "Settings",
+        active_meds: "Active Medicines",
+        expiring_soon: "Expiring Soon (<=10d)",
+        already_expired: "Already Expired",
+        low_stock: "Low Stock Alert"
+      },
+      ta: {
+        brand: "மெடோரா",
+        tagline: "பல்மொழி ஸ்மார்ட் மருந்து மேலாண்மை & மருந்து பாஸ்போர்ட்",
+        orbit_hero_title: "மருந்து சுற்றுப்பாதை",
+        orbit_hero_sub: "குடும்பத்தின் அமைதிக்கான வழி.",
+        hero_desc: "பாக்கெட் ஸ்கேனிங், காலாவதி எச்சரிக்கைகள், குடும்ப உறுப்பினர்கள் மேலாண்மை மற்றும் மருந்து பாஸ்போர்ட்டை ஒருங்கிணைக்கிறது.",
+        scan_btn: "பாக்கெட் ஸ்கேன் செய்",
+        cabinet_btn: "பெட்டகம் திற",
+        dashboard_tab: "டாஷ்போர்டு",
+        cabinet_tab: "பெட்டகம்",
+        scan_tab: "ஸ்கேன்",
+        timeline_tab: "காலவரிசை",
+        notif_tab: "அறிவிப்புகள்",
+        sched_tab: "அட்டவணை",
+        family_tab: "குடும்பம்",
+        passport_tab: "பாஸ்போர்ட்",
+        info_tab: "தகவல்கள்",
+        disposal_tab: "அகற்றல்",
+        settings_tab: "அமைப்புகள்",
+        active_meds: "செயலில் உள்ள மருந்துகள்",
+        expiring_soon: "விரைவில் காலாவதியாகிறது",
+        already_expired: "காலாவதியானது",
+        low_stock: "குறைந்த இருப்பு"
+      },
+      hi: {
+        brand: "मेडोरा",
+        tagline: "बहुभाषी स्मार्ट दवा प्रबंधन और दवा पासपोर्ट",
+        orbit_hero_title: "दवा की कक्षा (The Medicine Orbit)",
+        orbit_hero_sub: "परिवार के मानसिक सुकून के लिए।",
+        hero_desc: "पैकेट स्कैनिंग, एक्सपायरी चेतावनी, परिवार ट्रैकिंग और विश्वसनीय दवा पासपोर्ट का हिंदी, தமிழ் और अंग्रेजी में समन्वय।",
+        scan_btn: "पैकेट स्कैन करें",
+        cabinet_btn: "कैबिनेट खोलें",
+        dashboard_tab: "डैशबोर्ड",
+        cabinet_tab: "कैबिनेट",
+        scan_tab: "स्कैन",
+        timeline_tab: "टाइमलाइन",
+        notif_tab: "सूचनाएं",
+        sched_tab: "शेड्यूल",
+        family_tab: "परिवार",
+        passport_tab: "पासपोर्ट",
+        info_tab: "दवा ज्ञान",
+        disposal_tab: "निपटान",
+        settings_tab: "सेटिंग्स",
+        active_meds: "सक्रिय दवाएं",
+        expiring_soon: "जल्द एक्सपायर (<=10 दिन)",
+        already_expired: "पहले से एक्सपायर्ड",
+        low_stock: "कम स्टॉक अलर्ट"
+      }
+    };
+
+    function App() {
+      const [lang, setLang] = useState('en');
+      const [activeTab, setActiveTab] = useState('landing');
+      const t = (k) => (TRANSLATIONS[lang] && TRANSLATIONS[lang][k]) || TRANSLATIONS.en[k] || k;
+
+      // Seed Data State
+      const [members] = useState([
+        { id: 1, name: "Karthik Raman", role: "Self", age: 34 },
+        { id: 2, name: "Lakshmi Raman", role: "Mother", age: 68, notes: "Diabetic; daily morning reminder" },
+        { id: 3, name: "Aarav Raman", role: "Child", age: 8, allergies: "Peanuts (mild)" }
+      ]);
+
+      const [medicines, setMedicines] = useState([
+        { id: 1, name: "Amoxicillin Suspension", brand: "Moxikind-CV", strength: "228.5mg / 5ml", form: "Syrup", batch: "MX2024-09", expiry: offsetDate(-4), days: -4, qty: 1, threshold: 2, memberId: 3, status: "EXPIRED", source: "MANUAL", isDisposed: false },
+        { id: 2, name: "Cetirizine HCl", brand: "Alerid", strength: "10mg", form: "Tablet", batch: "CTZ-2601", expiry: offsetDate(1), days: 1, qty: 6, threshold: 5, memberId: 3, status: "CRITICAL_1D", source: "OCR", isDisposed: false },
+        { id: 3, name: "Azithromycin 500", brand: "Azithral", strength: "500mg", form: "Tablet", batch: "AZ-9088", expiry: offsetDate(3), days: 3, qty: 3, threshold: 3, memberId: 1, status: "URGENT_3D", source: "MANUAL", isDisposed: false },
+        { id: 4, name: "Metformin PR", brand: "Glycomet-SR", strength: "500mg", form: "Tablet", batch: "GLY-552", expiry: offsetDate(5), days: 5, qty: 14, threshold: 10, memberId: 2, status: "APPROACHING_5D", source: "OCR", isDisposed: false },
+        { id: 5, name: "Paracetamol IP", brand: "Dolo 650", strength: "650mg", form: "Tablet", batch: "DL-8812", expiry: offsetDate(10), days: 10, qty: 15, threshold: 8, memberId: 1, status: "NOTICE_10D", source: "BARCODE", isDisposed: false },
+        { id: 6, name: "Telmisartan 40", brand: "Telma 40", strength: "40mg", form: "Tablet", batch: "TLM-4402", expiry: offsetDate(120), days: 120, qty: 30, threshold: 10, memberId: 2, status: "SAFE", source: "MANUAL", isDisposed: false },
+        { id: 7, name: "Levosalbutamol Inhaler", brand: "Levolin", strength: "50mcg", form: "Inhaler", batch: "LV-3001", expiry: offsetDate(180), days: 180, qty: 1, threshold: 3, memberId: 3, status: "SAFE", source: "BARCODE", isDisposed: false }
+      ]);
+
+      const [notifications, setNotifications] = useState([
+        { id: 1, medId: 1, text: `EXPIRED: 'Amoxicillin Suspension' expired 4 days ago (${offsetDate(-4)}). Do not use.`, isRead: false },
+        { id: 2, medId: 2, text: `CRITICAL ALERT: 'Cetirizine HCl' expires tomorrow (${offsetDate(1)}). Prepare replacement.`, isRead: false },
+        { id: 3, medId: 3, text: `URGENT: 'Azithromycin 500' expires in 3 days (${offsetDate(3)}). Review course.`, isRead: false }
+      ]);
+
+      const [selectedMed, setSelectedMed] = useState(medicines[4]); // Dolo 650 default for passport
+      const unreadCount = notifications.filter(n => !n.isRead).length;
+
+      // Stats computed directly from real records
+      const activeMeds = medicines.filter(m => !m.isDisposed);
+      const expiringSoon = activeMeds.filter(m => m.days >= 0 && m.days <= 10).length;
+      const expiredCount = activeMeds.filter(m => m.days < 0).length;
+      const lowStockCount = activeMeds.filter(m => m.qty <= m.threshold).length;
+
+      return (
+        <div className="min-h-screen flex flex-col bg-[#0E393D] text-[#F3EDE6]">
+          
+          {/* Header & Nav */}
+          <header className="sticky top-0 z-50 bg-[#0E393D]/95 backdrop-blur-md border-b border-[#195A5F]">
+            <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+              
+              {/* Wordmark */}
+              <div onClick={() => setActiveTab('landing')} className="flex items-center gap-2 cursor-pointer">
+                <div className="w-9 h-9 rounded-xl bg-[#195A5F] border border-[#12B8B0] flex items-center justify-center font-bold text-[#12B8B0]">
+                  ◎
+                </div>
+                <div>
+                  <span className="font-display font-extrabold text-lg text-[#F3EDE6]">Medora</span>
+                  <span className="hidden sm:inline text-[10px] text-[#12B8B0] font-semibold ml-2">SMART MEDICINE PASSPORT</span>
+                </div>
+              </div>
+
+              {/* Navigation Tabs */}
+              <nav className="hidden lg:flex items-center space-x-1">
+                {[
+                  { id: 'dashboard', label: t('dashboard_tab') },
+                  { id: 'cabinet', label: t('cabinet_tab') },
+                  { id: 'scan', label: t('scan_tab') },
+                  { id: 'timeline', label: t('timeline_tab') },
+                  { id: 'notif', label: t('notif_tab'), badge: unreadCount },
+                  { id: 'family', label: t('family_tab') },
+                  { id: 'passport', label: t('passport_tab') },
+                  { id: 'disposal', label: t('disposal_tab') }
+                ].map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors ${
+                      activeTab === item.id 
+                        ? 'bg-[#195A5F] text-[#12B8B0] border border-[#12B8B0]/50' 
+                        : 'text-[#F3EDE6]/80 hover:bg-[#14464B]'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {item.badge > 0 && (
+                      <span className="px-1.5 py-0.2 bg-[#D97F6C] text-[#0E393D] font-bold text-[9px] rounded-full">
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </nav>
+
+              {/* Language Switcher */}
+              <div className="flex items-center bg-[#14464B] rounded-lg p-0.5 border border-[#195A5F]">
+                {['en', 'ta', 'hi'].map(l => (
+                  <button
+                    key={l}
+                    onClick={() => setLang(l)}
+                    className={`px-2 py-1 text-xs font-bold rounded-md transition-colors ${
+                      lang === l ? 'bg-[#12B8B0] text-[#0E393D]' : 'text-[#F3EDE6]/70'
+                    }`}
+                  >
+                    {l === 'en' ? 'EN' : l === 'ta' ? 'தமிழ்' : 'हिन्दी'}
+                  </button>
+                ))}
+              </div>
+
+            </div>
+          </header>
+
+          {/* MAIN VIEW CONTENT */}
+          <main className="flex-1">
+
+            {/* TAB: LANDING PAGE WITH ORBIT HERO */}
+            {activeTab === 'landing' && (
+              <div className="space-y-16 pb-20">
+                
+                {/* Custom Medicine Orbit Hero */}
+                <section className="relative overflow-hidden pt-12 pb-24 bg-[#0E393D] border-b border-[#195A5F]">
+                  <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                    
+                    {/* Left Column Headline */}
+                    <div className="lg:col-span-6 space-y-6 text-left">
+                      <span className="inline-block px-3 py-1 rounded-full bg-[#195A5F] text-[#12B8B0] text-xs font-bold uppercase tracking-wider">
+                        ✦ Intelligent Household Pharmacy Care
+                      </span>
+                      <h1 className="text-4xl sm:text-5xl font-extrabold text-[#F3EDE6] font-display leading-[1.15]">
+                        <span className="block text-[#12B8B0]">{t('orbit_hero_title')}</span>
+                        <span className="block">{t('orbit_hero_sub')}</span>
+                      </h1>
+                      <p className="text-base text-[#F3EDE6]/80 max-w-lg leading-relaxed">
+                        {t('hero_desc')}
+                      </p>
+                      <div className="flex gap-4 pt-2">
+                        <button
+                          onClick={() => setActiveTab('scan')}
+                          className="px-6 py-3 rounded-xl bg-[#12B8B0] text-[#0E393D] font-bold hover:bg-[#12B8B0]/90 transition-all shadow-lg"
+                        >
+                          {t('scan_btn')}
+                        </button>
+                        <button
+                          onClick={() => setActiveTab('cabinet')}
+                          className="px-6 py-3 rounded-xl bg-[#195A5F] text-[#F3EDE6] font-semibold border border-[#12B8B0]/40 hover:bg-[#195A5F]/80"
+                        >
+                          {t('cabinet_btn')}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Right Column: Architectural Orbit Composition */}
+                    <div className="lg:col-span-6 relative min-h-[380px] flex items-center justify-center">
+                      
+                      {/* SVG Geometry Arc */}
+                      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 500 400" fill="none">
+                        <path d="M 50 350 C 150 280, 250 150, 420 80" stroke="#12B8B0" strokeWidth="4" strokeDasharray="6 8" opacity="0.8"/>
+                        <circle cx="280" cy="180" r="100" stroke="#195A5F" strokeWidth="2" strokeDasharray="4 6" opacity="0.6"/>
+                        <circle cx="220" cy="240" r="6" fill="#D97F6C"/>
+                        <circle cx="380" cy="110" r="5" fill="#F3EDE6"/>
+                      </svg>
+
+                      {/* Floating Orbit Node: Coral Critical Alert */}
+                      <div className="absolute top-4 left-4 p-3 rounded-2xl bg-[#0E393D] border-2 border-[#D97F6C] shadow-2xl text-xs max-w-[200px] animate-float">
+                        <span className="text-[#D97F6C] font-bold block">⚠ 1-Day Critical Alert</span>
+                        <div className="font-bold text-sm text-[#F3EDE6]">Cetirizine 10mg</div>
+                        <div className="text-[10px] text-[#D97F6C]">Expires in 24h</div>
+                      </div>
+
+                      {/* Central Node: Warm White Passport Card */}
+                      <div className="z-10 w-[260px] rounded-3xl bg-[#F3EDE6] text-[#0E393D] p-5 shadow-2xl border-4 border-[#12B8B0]">
+                        <span className="px-2 py-0.5 rounded bg-[#195A5F] text-[#F3EDE6] text-[10px] font-bold">MEDORA PASSPORT</span>
+                        <h4 className="font-extrabold text-base mt-2">Dolo 650 Tablets</h4>
+                        <div className="text-xs text-[#195A5F] font-semibold">Paracetamol IP 650mg</div>
+                        <div className="mt-3 pt-2 border-t border-[#0E393D]/10 text-xs space-y-1">
+                          <div className="flex justify-between"><span>Batch:</span><strong className="font-mono">DL-8812</strong></div>
+                          <div className="flex justify-between"><span>Status:</span><strong className="text-[#195A5F]">10d Notice</strong></div>
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+                </section>
+
+                {/* 4 Core Pillars */}
+                <section className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                  {[
+                    { step: "1", title: "Scan Packaging", desc: "Camera OCR & Barcode draft extraction with human review." },
+                    { step: "2", title: "Tiered Warnings", desc: "Advance alerts at 10, 5, 3, and 1 days before expiry." },
+                    { step: "3", title: "Family Isolation", desc: "Separate cabinets for Self, Elder Mother, and Child." },
+                    { step: "4", title: "Medicine Passport", desc: "Package photographs, batch numbers, and audit trails." }
+                  ].map(p => (
+                    <div key={p.step} className="p-5 rounded-2xl bg-[#14464B] border border-[#195A5F]">
+                      <span className="text-lg font-bold text-[#12B8B0]">0{p.step}.</span>
+                      <h3 className="font-bold text-sm text-[#F3EDE6] mt-1">{p.title}</h3>
+                      <p className="text-xs text-[#F3EDE6]/70 mt-1">{p.desc}</p>
+                    </div>
+                  ))}
+                </section>
+
+              </div>
+            )}
+
+            {/* TAB: DASHBOARD */}
+            {activeTab === 'dashboard' && (
+              <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+                <div>
+                  <h1 className="text-2xl font-extrabold font-display">Smart Medicine Dashboard</h1>
+                  <p className="text-xs text-[#F3EDE6]/70">Live metrics derived from real stored records.</p>
+                </div>
+
+                {/* 4 Metric Tiles */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="p-4 rounded-2xl bg-[#14464B] border border-[#195A5F]">
+                    <span className="text-xs text-[#12B8B0] font-semibold block">{t('active_meds')}</span>
+                    <span className="text-3xl font-black text-[#F3EDE6]">{activeMeds.length}</span>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-[#14464B] border border-[#D97F6C]">
+                    <span className="text-xs text-[#D97F6C] font-semibold block">{t('expiring_soon')}</span>
+                    <span className="text-3xl font-black text-[#D97F6C]">{expiringSoon}</span>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-[#14464B] border-2 border-[#D97F6C]">
+                    <span className="text-xs text-[#D97F6C] font-semibold block">{t('already_expired')}</span>
+                    <span className="text-3xl font-black text-[#D97F6C]">{expiredCount}</span>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-[#14464B] border border-[#195A5F]">
+                    <span className="text-xs text-[#F3EDE6] font-semibold block">{t('low_stock')}</span>
+                    <span className="text-3xl font-black text-[#F3EDE6]">{lowStockCount}</span>
+                  </div>
+                </div>
+
+                {/* Urgent Attention Queue */}
+                <div className="p-6 rounded-3xl bg-[#14464B] border border-[#195A5F] space-y-4">
+                  <h3 className="font-bold text-base text-[#F3EDE6]">Urgent Expiry Queue (Next 10 Days)</h3>
+                  <div className="space-y-2">
+                    {activeMeds.filter(m => m.days <= 10).map(m => (
+                      <div key={m.id} className="p-3 rounded-xl bg-[#0E393D] border border-[#195A5F] flex justify-between items-center text-xs">
+                        <div>
+                          <strong className="text-[#F3EDE6]">{m.name}</strong> ({m.brand})
+                          <span className="block text-[11px] text-[#F3EDE6]/60">Batch: {m.batch} • {m.strength}</span>
+                        </div>
+                        <span className={`px-2.5 py-1 rounded-full font-bold text-xs ${
+                          m.days < 0 ? 'bg-[#D97F6C] text-[#0E393D]' : 'bg-[#D97F6C]/20 text-[#D97F6C]'
+                        }`}>
+                          {m.days < 0 ? `EXPIRED (${Math.abs(m.days)}d ago)` : `${m.days}d left`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB: CABINET */}
+            {activeTab === 'cabinet' && (
+              <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+                <div className="flex justify-between items-center">
+                  <h1 className="text-2xl font-extrabold font-display">Medicine Cabinet ({activeMeds.length})</h1>
+                  <button
+                    onClick={() => setActiveTab('scan')}
+                    className="px-4 py-2 rounded-xl bg-[#12B8B0] text-[#0E393D] font-bold text-xs"
+                  >
+                    + Scan New Medicine
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {activeMeds.map(med => (
+                    <div key={med.id} className="p-5 rounded-2xl bg-[#14464B] border border-[#195A5F] space-y-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-bold text-base text-[#F3EDE6]">{med.name}</h3>
+                          <span className="text-xs text-[#12B8B0]">{med.brand}</span>
+                        </div>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-[#195A5F] text-[#F3EDE6] font-mono">
+                          {med.days < 0 ? 'EXPIRED' : `${med.days}d`}
+                        </span>
+                      </div>
+                      <div className="text-xs text-[#F3EDE6]/70 space-y-1">
+                        <div>Strength: <strong>{med.strength}</strong> ({med.form})</div>
+                        <div>Batch: <strong className="font-mono">{med.batch}</strong></div>
+                        <div>Stock: <strong className={med.qty <= med.threshold ? 'text-[#D97F6C]' : 'text-[#12B8B0]'}>{med.qty} units</strong></div>
+                      </div>
+                      <button
+                        onClick={() => { setSelectedMed(med); setActiveTab('passport'); }}
+                        className="w-full py-2 rounded-xl bg-[#0E393D] text-[#12B8B0] font-bold text-xs border border-[#195A5F]"
+                      >
+                        Inspect Passport ➔
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: SCAN */}
+            {activeTab === 'scan' && (
+              <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+                <div>
+                  <h1 className="text-2xl font-extrabold font-display">Medicine Scanner & Draft Review</h1>
+                  <p className="text-xs text-[#F3EDE6]/70">Preview mode OCR & barcode simulation with human confirmation.</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="p-6 rounded-3xl bg-[#14464B] border border-[#195A5F] space-y-3 text-xs">
+                    <h3 className="font-bold text-sm text-[#12B8B0]">Quick Scan Presets</h3>
+                    {[
+                      { name: "Pantoprazole 40mg", brand: "Pan-40", strength: "40mg", form: "Tablet", batch: "PAN-204", days: 45 },
+                      { name: "Dolo 650", brand: "Micro Labs", strength: "650mg", form: "Tablet", batch: "DL-9910", days: 10 }
+                    ].map((preset, i) => (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          const newMed = {
+                            id: Date.now() + i,
+                            name: preset.name,
+                            brand: preset.brand,
+                            strength: preset.strength,
+                            form: preset.form,
+                            batch: preset.batch,
+                            expiry: offsetDate(preset.days),
+                            days: preset.days,
+                            qty: 10,
+                            threshold: 5,
+                            memberId: 1,
+                            status: preset.days <= 10 ? "NOTICE_10D" : "SAFE",
+                            source: "OCR",
+                            isDisposed: false
+                          };
+                          setMedicines([newMed, ...medicines]);
+                          setSelectedMed(newMed);
+                          setActiveTab('cabinet');
+                        }}
+                        className="w-full p-3 rounded-xl bg-[#0E393D] border border-[#195A5F] hover:border-[#12B8B0] flex justify-between items-center text-left"
+                      >
+                        <div>
+                          <strong className="block text-[#F3EDE6]">{preset.name}</strong>
+                          <span className="text-[#F3EDE6]/60">{preset.brand} • Batch {preset.batch}</span>
+                        </div>
+                        <span className="text-[#12B8B0] font-bold">Add Draft ➔</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="p-6 rounded-3xl bg-[#14464B] border border-[#195A5F] text-xs space-y-2">
+                    <h3 className="font-bold text-sm text-[#F3EDE6]">Verification Rule</h3>
+                    <p className="text-[#F3EDE6]/80 leading-relaxed">
+                      Extracted packaging fields must be checked against physical blister strips before committing. Run the full FastAPI + React stack for live backend OCR parsing and barcode catalog lookups.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB: TIMELINE */}
+            {activeTab === 'timeline' && (
+              <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+                <div>
+                  <h1 className="text-2xl font-extrabold font-display">Dynamic Expiry Timeline</h1>
+                  <p className="text-xs text-[#F3EDE6]/70">Sorted by urgency using Min-Heap priority ordering.</p>
+                </div>
+                <div className="space-y-3">
+                  {[...activeMeds].sort((a, b) => a.days - b.days).map(m => (
+                    <div key={m.id} className="p-4 rounded-2xl bg-[#14464B] border border-[#195A5F] flex justify-between items-center text-xs">
+                      <div>
+                        <strong className="text-sm text-[#F3EDE6]">{m.name}</strong>
+                        <span className="block text-[#F3EDE6]/60">{m.brand} • {m.strength} • Batch {m.batch}</span>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full font-bold ${
+                        m.days <= 3 ? 'bg-[#D97F6C] text-[#0E393D]' : m.days <= 10 ? 'bg-[#195A5F] text-[#12B8B0]' : 'bg-[#0E393D] text-[#12B8B0]'
+                      }`}>
+                        {m.days < 0 ? `EXPIRED (${Math.abs(m.days)}d ago)` : `${m.days}d remaining`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: FAMILY */}
+            {activeTab === 'family' && (
+              <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+                <div>
+                  <h1 className="text-2xl font-extrabold font-display">Household Family Profiles</h1>
+                  <p className="text-xs text-[#F3EDE6]/70">Per-member medicine isolation and allergy visibility.</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {members.map(mem => {
+                    const count = activeMeds.filter(m => m.memberId === mem.id).length;
+                    return (
+                      <div key={mem.id} className="p-5 rounded-3xl bg-[#14464B] border border-[#195A5F] space-y-2 text-xs">
+                        <span className="px-2 py-0.5 rounded-full bg-[#0E393D] text-[#12B8B0] font-bold">{mem.role}</span>
+                        <h3 className="text-base font-bold text-[#F3EDE6]">{mem.name}</h3>
+                        <p className="text-[#F3EDE6]/70">Age: {mem.age} • {count} active medicines</p>
+                        {mem.allergies && <p className="text-[#D97F6C] font-semibold">Allergy: {mem.allergies}</p>}
+                        {mem.notes && <p className="text-[#F3EDE6]/60">{mem.notes}</p>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: PASSPORT */}
+            {activeTab === 'passport' && selectedMed && (
+              <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+                <h1 className="text-2xl font-extrabold font-display">Medicine Passport: {selectedMed.name}</h1>
+                <div className="p-6 rounded-3xl bg-[#F3EDE6] text-[#0E393D] border-4 border-[#12B8B0] space-y-4">
+                  <div className="flex justify-between items-center border-b border-[#0E393D]/10 pb-3">
+                    <div>
+                      <span className="text-[10px] font-mono font-bold text-[#195A5F]">MEDORA OFFICIAL PASSPORT</span>
+                      <h2 className="text-xl font-black">{selectedMed.name}</h2>
+                      <span className="text-xs text-[#195A5F] font-semibold">{selectedMed.brand}</span>
+                    </div>
+                    <div className="w-12 h-12 bg-[#0E393D] text-[#12B8B0] rounded-xl flex items-center justify-center font-mono text-xl">
+                      ▣
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                    <div className="p-2.5 rounded-lg bg-[#EAE2D7]"><span>BATCH:</span><strong className="block font-mono">{selectedMed.batch}</strong></div>
+                    <div className="p-2.5 rounded-lg bg-[#EAE2D7]"><span>EXPIRY:</span><strong className="block">{selectedMed.expiry}</strong></div>
+                    <div className="p-2.5 rounded-lg bg-[#EAE2D7]"><span>STOCK:</span><strong className="block">{selectedMed.qty} units</strong></div>
+                    <div className="p-2.5 rounded-lg bg-[#EAE2D7]"><span>SOURCE:</span><strong className="block">{selectedMed.source} Verified</strong></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB: NOTIFICATIONS */}
+            {activeTab === 'notif' && (
+              <div className="max-w-4xl mx-auto px-4 py-8 space-y-4">
+                <h1 className="text-2xl font-extrabold font-display">Notifications ({unreadCount} unread)</h1>
+                <div className="space-y-3">
+                  {notifications.map(n => (
+                    <div key={n.id} className="p-4 rounded-2xl bg-[#14464B] border border-[#195A5F] text-xs flex justify-between items-center">
+                      <span>{n.text}</span>
+                      <button
+                        onClick={() => setNotifications(notifications.map(x => x.id === n.id ? { ...x, isRead: true } : x))}
+                        className="text-xs text-[#12B8B0] font-bold underline"
+                      >
+                        {n.isRead ? 'Read' : 'Mark as read'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: DISPOSAL */}
+            {activeTab === 'disposal' && (
+              <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+                <h1 className="text-2xl font-extrabold font-display">Responsible Medicine Disposal</h1>
+                <div className="p-6 rounded-3xl bg-[#14464B] border-2 border-[#D97F6C] space-y-3 text-xs">
+                  <h3 className="font-bold text-sm text-[#D97F6C]">Zero Sharing & Safe Take-Back Policy</h3>
+                  <p>Never share or donate expired prescription medicines. Surrender unneeded medications to municipal pharmacy take-back drop boxes for high-temperature incineration.</p>
+                </div>
+              </div>
+            )}
+
+          </main>
+
+          {/* Footer */}
+          <footer className="border-t border-[#195A5F] py-8 bg-[#0E393D] text-xs text-[#F3EDE6]/60 text-center">
+            Medora Multilingual Smart Medicine Management • C99 Data Structures Academic Module
+          </footer>
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

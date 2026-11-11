@@ -1,0 +1,3 @@
+Medora — Multilingual Smart Medicine Management & Passport
+Academic Mini-Project (~70% milestone reached & verified).
+See README.md and medora_preview.html.

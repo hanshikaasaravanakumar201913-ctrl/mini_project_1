@@ -1,0 +1,41 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "1. Run FastAPI Backend",
+      "type": "shell",
+      "command": "python run_backend.py",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "group": "medora",
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "2. Run Vite Frontend",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "group": "medora",
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Run Both Backend & Frontend",
+      "dependsOn": [
+        "1. Run FastAPI Backend",
+        "2. Run Vite Frontend"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

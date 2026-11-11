@@ -1,0 +1,53 @@
+# Python / FastAPI Backend
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment Variables & Secrets (NEVER commit real secrets)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.crt
+
+# SQLite Runtime Databases & Private User Uploads
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+backend/private_uploads/*
+!backend/private_uploads/.gitkeep
+
+# Node / React / Vite Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+dist/
+build/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Compiled C Binaries
+c_src/bin/*.dll
+c_src/bin/*.so
+c_src/bin/*.dylib
+c_src/bin/*.exe
+c_src/bin/*.o
+c_src/bin/*.obj
+
+# OS & Logs
+.DS_Store
+Thumbs.db
+*.log
